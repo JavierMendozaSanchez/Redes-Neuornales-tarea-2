@@ -10,16 +10,15 @@ class CrossEntropyCost:
 class Network:
 
     def __init__(self, sizes):
-        """Inicialización de pesos igual que en network 1 aun no 
-        se implementa la mejora en la inicializacion de pesos asi que 
-        de momento mantenemos la misma estructura de incializacion
-        de pesos"""
+        """Inicialización de pesos implementada como se vio en clases
+        para evitar que se pueda saturar de neuronas muy seguido entonces
+        usados que los pesos se incialicen como 1/sqrt(neuronas de entrada) y se
+        implemanta ento justo abajo multiplicando por esto"""
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x)
+        self.weights = [np.random.randn(y, x)* (1 / np.sqrt(x))
                         for x, y in zip(sizes[:-1], sizes[1:])]
-
     def feedforward(self, a):
         """aqui sera la salida de la red para una entrada la cual será
         llamada a"""
