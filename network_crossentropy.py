@@ -1,13 +1,19 @@
-#Copiamos nuestra network de la tarea pasada para agregar cross entropy
 import random
-
-# Third-party libraries
 import numpy as np
+class CrossEntropyCost:
+    @staticmethod
+    def fn(a, y):
+        """implementacion del algoritmo de cross entropy visto en clase
+        el cual esta inducado cuando el entrenamiento se ve muy lento"""
+        return np.sum(np.nan_to_num(-y*np.log(a) - (1-y)*np.log(1-a)))
 
-class Network(object):
+class Network:
 
     def __init__(self, sizes):
-       
+        """Inicialización de pesos igual que en network 1 aun no 
+        se implementa la mejora en la inicializacion de pesos asi que 
+        de momento mantenemos la misma estructura de incializacion
+        de pesos"""
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
@@ -15,14 +21,14 @@ class Network(object):
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
-       
+        """aqui sera la salida de la red para una entrada la cual será
+        llamada a"""
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
-       
 
         training_data = list(training_data)
         n = len(training_data)
@@ -39,12 +45,13 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
-                print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test))
+                accuracy = self.evaluate(test_data)
+                print(f"Epoch {j}: {accuracy}/{n_test}")
             else:
-                print("Epoch {} complete".format(j))
+                print(f"Epoch {j} complete")
 
     def update_mini_batch(self, mini_batch, eta):
-       
+
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
@@ -57,52 +64,43 @@ class Network(object):
                        for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
-       
+
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+
         # feedforward
         activation = x
-        activations = [x] # list to store all the activations, layer by layer
-        zs = [] # list to store all the z vectors, layer by layer
+        activations = [x]
+        zs = []
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation)+b
             zs.append(z)
             activation = sigmoid(z)
             activations.append(activation)
-        # backward pass
-        delta = self.cost_derivative(activations[-1], y) * \
-            sigmoid_prime(zs[-1])
+
+        # backpropagation  calculamos los gradientes
+        delta = activations[-1] - y
         nabla_b[-1] = delta
-        nabla_w[-1] = np.dot(delta, activations[-2].transpose())
-        # Note that the variable l in the loop below is used a little
-        # differently to the notation in Chapter 2 of the book.  Here,
-        # l = 1 means the last layer of neurons, l = 2 is the
-        # second-last layer, and so on.  It's a renumbering of the
-        # scheme in the book, used here to take advantage of the fact
-        # that Python can use negative indices in lists.
+        nabla_w[-1] = np.dot(delta, activations[-2].T)
+
         for l in range(2, self.num_layers):
             z = zs[-l]
             sp = sigmoid_prime(z)
-            delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
+            delta = np.dot(self.weights[-l+1].T, delta) * sp
             nabla_b[-l] = delta
-            nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
+            nabla_w[-l] = np.dot(delta, activations[-l-1].T)
+
         return (nabla_b, nabla_w)
 
     def evaluate(self, test_data):
-        
+
         test_results = [(np.argmax(self.feedforward(x)), y)
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 
-    def cost_derivative(self, output_activations, y):
-        
-        return (output_activations-y)
-
-#### Miscellaneous functions
+#### Funciones auxiliares
 def sigmoid(z):
-    """The sigmoid function."""
     return 1.0/(1.0+np.exp(-z))
 
 def sigmoid_prime(z):
-    """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
