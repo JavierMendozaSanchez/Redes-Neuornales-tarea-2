@@ -34,6 +34,7 @@ class Network:
 
     def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
         training_data = list(training_data)
+        training_data = training_data[:10000]
         n = len(training_data)
 
         if test_data:
