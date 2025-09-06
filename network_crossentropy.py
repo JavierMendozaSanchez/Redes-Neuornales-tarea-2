@@ -12,8 +12,8 @@ class CrossEntropyCost:
 class Network:
 
     def __init__(self, sizes):
-        """Inicialización de pesos si usar inicializacion esto es el codigo 
-        de incicializacion de pesos es decir  usando (sin 1/sqrt(n))"""
+        """Inicialización de pesos si haber hecho la implementacion de pesos
+        es decir 1/sqrt numero de neuronas de entrada """
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
