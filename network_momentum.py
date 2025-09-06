@@ -133,14 +133,14 @@ class Network:
         test_results = [(np.argmax(self.feedforward(x)), y)
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
-#definimos al costo total 
+#definimos al costo total  del siguiente modo
     def total_cost(self, data):
         cost = 0.0
         for x, y in data:
             a = self.feedforward(x)
             cost += CrossEntropyCost.fn(a, y)
         return cost / len(data)
-
+#usamos one hot 
     @staticmethod
     def one_hot(y, num_classes):
         e = np.zeros((num_classes, 1))
